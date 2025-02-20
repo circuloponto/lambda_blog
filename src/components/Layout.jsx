@@ -31,7 +31,9 @@ const Layout = ({ children }) => {
             </nav>
 
             <main className="pt-16">
-                {children}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    {children}
+                </div>
             </main>
 
             <footer className="bg-gray-50 border-t border-gray-100">
