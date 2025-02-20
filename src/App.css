@@ -4,6 +4,10 @@ html, body {
   padding: 0;
   width: 100%;
   overflow-x: hidden;
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  -ms-text-size-adjust: none;
+  text-size-adjust: none;
 }
 
 /* Ensure proper mobile viewport */
@@ -12,8 +16,23 @@ html, body {
   overflow-x: hidden;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
+}
+
+/* Mobile-first media query */
+@media screen and (max-width: 640px) {
+  .prose {
+    font-size: 16px !important;
+    max-width: 100% !important;
+  }
+  
+  pre, code {
+    font-size: 14px !important;
+    max-width: 100% !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+  }
 }
 
 /* Ensure images don't overflow */

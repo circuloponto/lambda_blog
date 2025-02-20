@@ -128,7 +128,7 @@ const PostDetail = () => {
     }
 
     return (
-        <div className="relative">
+        <div className="relative w-full">
             <div className="px-4 sm:px-6 lg:px-8">
                 {/* Main content */}
                 <div className="lg:pr-64">
@@ -175,7 +175,11 @@ const PostDetail = () => {
                         <div className="prose prose-lg mx-auto dark:prose-invert">
                             <MDEditor.Markdown 
                                 source={post.content}
-                                style={{ backgroundColor: 'transparent' }}
+                                style={{ 
+                                    backgroundColor: 'transparent',
+                                    width: '100%',
+                                    maxWidth: '100%'
+                                }}
                                 className="markdown-body"
                             />
                         </div>
