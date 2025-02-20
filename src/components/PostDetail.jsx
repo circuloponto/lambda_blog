@@ -130,7 +130,7 @@ const PostDetail = () => {
     return (
         <div className="w-full">
             <article className="px-4 sm:px-6 md:px-8">
-                <div className="max-w-prose mx-auto">
+                <div className="w-full md:max-w-2xl mx-auto">
                     <header className="mb-8 sm:mb-12">
                         <div className="mb-4 sm:mb-6 flex flex-wrap">
                             {post.tags && post.tags.map(tag => (
@@ -160,7 +160,7 @@ const PostDetail = () => {
 
                     {post.featuredImage && (
                         <div className="mb-8 sm:mb-12">
-                            <div className="aspect-[2/1] overflow-hidden rounded-lg">
+                            <div className="w-full h-48 sm:h-56 md:h-64 rounded-lg overflow-hidden">
                                 <img
                                     src={post.featuredImage}
                                     alt={post.title}
