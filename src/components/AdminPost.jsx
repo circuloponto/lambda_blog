@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import MDEditor from '@uiw/react-md-editor';
 import { supabase } from '../services/supabase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ReactMarkdown from 'react-markdown';
+import '../styles/markdown.css';
 
 export default function AdminPost() {
   const [title, setTitle] = useState('');
@@ -135,12 +136,18 @@ export default function AdminPost() {
 
         <div>
           <label className="block text-sm font-medium mb-2">Content</label>
-          <MDEditor
+          <textarea
             value={content}
-            onChange={setContent}
-            preview="edit"
-            height={400}
+            onChange={(e) => setContent(e.target.value)}
+            rows={20}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono"
+            required
           />
+          <div className="mt-4">
+            <ReactMarkdown className="markdown-body">
+              {content}
+            </ReactMarkdown>
+          </div>
         </div>
 
         <div>

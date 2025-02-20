@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { getPostBySlug } from '../data/posts';
-import MDEditor from '@uiw/react-md-editor';
 import TableOfContents from './TableOfContents';
+import ReactMarkdown from 'react-markdown';
 import '../styles/markdown.css';
 
 // UUID validation regex
@@ -173,15 +173,9 @@ const PostDetail = () => {
                         )}
 
                         <div className="prose prose-lg mx-auto dark:prose-invert">
-                            <MDEditor.Markdown 
-                                source={post.content}
-                                style={{ 
-                                    backgroundColor: 'transparent',
-                                    width: '100%',
-                                    maxWidth: '100%'
-                                }}
-                                className="markdown-body"
-                            />
+                            <ReactMarkdown className="markdown-body">
+                                {post.content}
+                            </ReactMarkdown>
                         </div>
                     </article>
                 </div>
