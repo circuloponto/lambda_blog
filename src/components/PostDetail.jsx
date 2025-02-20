@@ -128,63 +128,60 @@ const PostDetail = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="relative">
-                {/* Main content */}
-                <div className="lg:pr-64">
-                    <article className="max-w-2xl mx-auto">
-                        <header className="mb-16">
-                            <div className="mb-6 flex flex-wrap">
-                                {post.tags && post.tags.map(tag => (
-                                    <span
-                                        key={tag}
-                                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 mr-2 mb-2"
-                                    >
-                                        {tag}
-                                    </span>
-                                ))}
-                            </div>
-                            <h1 className="text-4xl font-extrabold text-gray-900 mb-4 break-words">
-                                {post.title}
-                            </h1>
-                            <div className="flex flex-wrap items-center gap-2 text-gray-500">
-                                <span>{post.author}</span>
-                                <span>•</span>
-                                <time dateTime={post.created_at || post.date}>
-                                    {new Date(post.created_at || post.date).toLocaleDateString('en-US', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                    })}
-                                </time>
-                            </div>
-                        </header>
-
-                        {post.featuredImage && (
-                            <div className="mb-16">
-                                <div className="aspect-[2/1] overflow-hidden rounded-lg">
-                                    <img
-                                        src={post.featuredImage}
-                                        alt={post.title}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="prose prose-lg mx-auto dark:prose-invert">
-                            <ReactMarkdown className="markdown-body">
-                                {post.content}
-                            </ReactMarkdown>
+        <div className="w-full">
+            <article className="px-4 sm:px-6 md:px-8">
+                <div className="max-w-prose mx-auto">
+                    <header className="mb-8 sm:mb-12">
+                        <div className="mb-4 sm:mb-6 flex flex-wrap">
+                            {post.tags && post.tags.map(tag => (
+                                <span
+                                    key={tag}
+                                    className="inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-gray-100 text-gray-800 mr-2 mb-2"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
                         </div>
-                    </article>
-                </div>
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-3 sm:mb-4 break-words">
+                            {post.title}
+                        </h1>
+                        <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base text-gray-500">
+                            <span>{post.author}</span>
+                            <span>•</span>
+                            <time dateTime={post.created_at || post.date}>
+                                {new Date(post.created_at || post.date).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </time>
+                        </div>
+                    </header>
 
-                {/* Table of Contents - Fixed on desktop, bottom on mobile */}
-                <div className="lg:w-64 lg:fixed lg:top-24 lg:right-4 lg:bottom-0 lg:overflow-y-auto">
-                    <div className="mt-8 lg:mt-0">
-                        <TableOfContents currentPostId={post.isStatic ? post.slug : post.id} />
+                    {post.featuredImage && (
+                        <div className="mb-8 sm:mb-12">
+                            <div className="aspect-[2/1] overflow-hidden rounded-lg">
+                                <img
+                                    src={post.featuredImage}
+                                    alt={post.title}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="prose prose-sm sm:prose lg:prose-lg mx-auto">
+                        <ReactMarkdown className="markdown-body">
+                            {post.content}
+                        </ReactMarkdown>
                     </div>
+                </div>
+            </article>
+
+            {/* Table of Contents - Bottom on mobile, sidebar on desktop */}
+            <div className="mt-8 px-4 sm:px-6 md:px-0 md:w-64 md:fixed md:top-24 md:right-4 md:bottom-0 md:overflow-y-auto">
+                <div className="border-t md:border-t-0 pt-4 md:pt-0">
+                    <TableOfContents currentPostId={post.isStatic ? post.slug : post.id} />
                 </div>
             </div>
         </div>
