@@ -123,31 +123,31 @@ const PostList = () => {
     }
 
     return (
-        <div className="space-y-16">
-            <div className="text-center max-w-2xl mx-auto">
-                <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+        <div className="px-4 sm:px-6 space-y-8 sm:space-y-12 md:space-y-16">
+            <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900">
                     Lambda Blog
                 </h1>
-                <p className="mt-4 text-xl text-gray-500">
+                <p className="mt-3 sm:mt-4 text-base sm:text-lg md:text-xl text-gray-500">
                     Exploring the elegance of functional programming through theory and practice.
                 </p>
             </div>
 
             {sortedMonths.map(monthYear => (
-                <div key={monthYear} className="space-y-8">
-                    <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-4">
+                <div key={monthYear} className="space-y-6 sm:space-y-8">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 sm:pb-4">
                         {monthYear}
                     </h2>
-                    <div className="grid gap-12">
+                    <div className="space-y-8 sm:space-y-12">
                         {groupedPosts[monthYear]
                             .sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))
                             .map((post) => (
                                 <article
                                     key={post.isStatic ? post.slug : post.id}
-                                    className="grid md:grid-cols-4 gap-8 items-start"
+                                    className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-4 sm:gap-6 md:gap-8"
                                 >
-                                    <div className="md:col-span-1">
-                                        <time className="text-sm text-gray-500">
+                                    <div className="sm:col-span-1">
+                                        <time className="text-xs sm:text-sm text-gray-500">
                                             {new Date(post.created_at || post.date).toLocaleDateString('en-US', {
                                                 month: 'long',
                                                 day: 'numeric',
@@ -155,24 +155,26 @@ const PostList = () => {
                                             })}
                                         </time>
                                     </div>
-                                    <div className="md:col-span-3">
+                                    <div className="sm:col-span-3">
                                         <Link
                                             to={post.isStatic ? `/post/${post.slug}` : `/post/${post.id}`}
                                             className="group block"
                                         >
-                                            <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600">
+                                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 group-hover:text-blue-600">
                                                 {post.title}
                                             </h3>
-                                            <div className="mt-3 text-gray-500 line-clamp-3">
+                                            <div className="mt-2 sm:mt-3 text-sm sm:text-base text-gray-500 line-clamp-3">
                                                 {post.content.substring(0, 200)}...
                                             </div>
                                         </Link>
                                         {post.featuredImage && (
-                                            <img 
-                                                src={post.featuredImage}
-                                                alt={post.title}
-                                                className="mt-4 rounded-lg w-full max-w-2xl object-cover"
-                                            />
+                                            <div className="mt-3 sm:mt-4">
+                                                <img 
+                                                    src={post.featuredImage}
+                                                    alt={post.title}
+                                                    className="rounded-lg w-full object-cover h-48 sm:h-56 md:h-64"
+                                                />
+                                            </div>
                                         )}
                                     </div>
                                 </article>

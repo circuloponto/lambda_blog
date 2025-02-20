@@ -43,11 +43,11 @@ const TableOfContents = ({ currentPostId }) => {
 
     if (loading) {
         return (
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="animate-pulse space-y-4">
-                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="bg-white rounded-lg border border-gray-100 p-4 sm:p-6">
+                <div className="animate-pulse space-y-3 sm:space-y-4">
+                    <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/2"></div>
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div key={i} className="h-3 sm:h-4 bg-gray-200 rounded w-3/4"></div>
                     ))}
                 </div>
             </div>
@@ -56,23 +56,23 @@ const TableOfContents = ({ currentPostId }) => {
 
     if (error) {
         return (
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-                <p className="text-red-600 text-sm">Error loading posts</p>
+            <div className="bg-white rounded-lg border border-gray-100 p-4 sm:p-6">
+                <p className="text-xs sm:text-sm text-red-600">Error loading posts</p>
             </div>
         );
     }
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-sm lg:shadow-md">
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+        <div className="bg-white rounded-lg border border-gray-100 p-4 sm:p-6">
+            <h3 className="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 sm:mb-4">
                 All Posts
             </h3>
-            <nav className="space-y-2 flex flex-col">
+            <nav className="space-y-1 sm:space-y-2">
                 {allPosts.map(post => (
                     <Link
                         key={post.isStatic ? post.slug : post.id}
                         to={post.isStatic ? `/post/${post.slug}` : `/post/${post.id}`}
-                        className={`block text-sm py-2 transition-colors duration-150 ${
+                        className={`block text-xs sm:text-sm py-1.5 sm:py-2 transition-colors duration-150 ${
                             (post.isStatic ? post.slug === currentPostId : post.id === currentPostId)
                                 ? 'text-blue-600 font-medium'
                                 : 'text-gray-600 hover:text-gray-900'
