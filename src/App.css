@@ -1,9 +1,14 @@
 /* Reset and base styles */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   overflow-x: hidden;
+  min-width: 320px;
 }
 
 /* Ensure proper mobile viewport */
@@ -14,6 +19,7 @@ html, body {
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  min-width: 320px;
 }
 
 /* Ensure images don't overflow */
@@ -26,6 +32,7 @@ img {
 pre {
   max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Ensure tables don't overflow */
@@ -33,6 +40,7 @@ table {
   max-width: 100%;
   overflow-x: auto;
   display: block;
+  -webkit-overflow-scrolling: touch;
 }
 
 .logo {
