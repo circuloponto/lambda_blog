@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { account } from '../services/appwrite';
+import { supabase } from '../services/supabase';
 
 const AuthContext = createContext(null);
 
@@ -7,24 +7,38 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    useEffect(() => {
+        // Set up Supabase auth state listener
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            setUser(session?.user ?? null);
+            setLoading(false);
+        });
+
+        // Check current session
+        checkAuth();
+
+        return () => subscription.unsubscribe();
+    }, []);
+
     const checkAuth = async () => {
         try {
-            const currentUser = await account.get();
-            setUser(currentUser);
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user ?? null);
         } catch (error) {
+            console.error('Error checking auth status:', error);
             setUser(null);
         }
         setLoading(false);
     };
 
-    useEffect(() => {
-        checkAuth();
-    }, []);
-
     const login = async (email, password) => {
         try {
-            await account.createEmailSession(email, password);
-            await checkAuth();
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+            if (error) throw error;
+            return data;
         } catch (error) {
             throw error;
         }
@@ -32,7 +46,8 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await account.deleteSession('current');
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
             setUser(null);
         } catch (error) {
             console.error('Logout error:', error);
@@ -53,3 +68,5 @@ export const useAuth = () => {
     }
     return context;
 };
+
+export default AuthContext;

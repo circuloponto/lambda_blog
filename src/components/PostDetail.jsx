@@ -1,125 +1,195 @@
-import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '../services/supabase';
 import { getPostBySlug } from '../data/posts';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import RelatedPosts from './RelatedPosts';
+import MDEditor from '@uiw/react-md-editor';
 import TableOfContents from './TableOfContents';
+import '../styles/markdown.css';
+
+// UUID validation regex
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const PostDetail = () => {
-    const { slug } = useParams();
-    const post = getPostBySlug(slug);
+    const { id: postId } = useParams();
+    const navigate = useNavigate();
+    const [post, setPost] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    if (!post) {
+    useEffect(() => {
+        const fetchPost = async () => {
+            try {
+                if (!postId) {
+                    console.error('No post ID provided');
+                    navigate('/404');
+                    return;
+                }
+
+                // First check if it's a static post (slug)
+                const staticPost = getPostBySlug(postId);
+                if (staticPost) {
+                    console.log('Found static post:', staticPost);
+                    setPost({
+                        ...staticPost,
+                        isStatic: true,
+                        created_at: staticPost.date,
+                        featuredImage: staticPost.featuredImage
+                    });
+                    setLoading(false);
+                    return;
+                }
+
+                // If not a static post, validate UUID
+                if (!UUID_REGEX.test(postId)) {
+                    console.error('Invalid UUID format:', postId);
+                    navigate('/404');
+                    return;
+                }
+
+                console.log('Fetching dynamic post with ID:', postId);
+
+                // Fetch from Supabase using the UUID
+                const { data, error: fetchError } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('id', postId)
+                    .single();
+
+                if (fetchError) {
+                    console.error('Supabase fetch error:', fetchError);
+                    throw fetchError;
+                }
+
+                if (!data) {
+                    console.error('No post found with ID:', postId);
+                    navigate('/404');
+                    return;
+                }
+
+                console.log('Found dynamic post:', data);
+
+                // Get signed URL for the image if it exists
+                let imageUrl = null;
+                if (data.image_url) {
+                    try {
+                        // Check if the image_url is already a full URL
+                        if (data.image_url.startsWith('http')) {
+                            imageUrl = data.image_url;
+                        } else {
+                            // If it's just a filename, get a signed URL
+                            const { data: storageData } = await supabase
+                                .storage
+                                .from('blog-images')
+                                .createSignedUrl(data.image_url, 60 * 60); // 1 hour expiry
+
+                            console.log('Image data:', {
+                                originalUrl: data.image_url,
+                                signedUrl: storageData?.signedUrl
+                            });
+
+                            imageUrl = storageData?.signedUrl;
+                        }
+                    } catch (imageError) {
+                        console.error('Error getting signed URL:', imageError);
+                        // Don't throw, just log the error and continue without the image
+                    }
+                }
+
+                setPost({
+                    ...data,
+                    isStatic: false,
+                    featuredImage: imageUrl
+                });
+            } catch (error) {
+                console.error('Error fetching post:', error);
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPost();
+    }, [postId, navigate]);
+
+    if (loading) {
         return (
-            <div className="text-center py-16">
-                <h1 className="text-2xl font-bold text-gray-900">Post not found</h1>
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+        );
+    }
+
+    if (error || !post) {
+        return (
+            <div className="text-center text-red-600 p-4">
+                {error || 'Post not found'}
             </div>
         );
     }
 
     return (
-        <>
-            <div className="max-w-3xl mx-auto">
-                <article>
-                    <header className="mb-16">
-                        <div className="mb-6">
-                            {post.tags.map(tag => (
-                                <span
-                                    key={tag}
-                                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 mr-2"
-                                >
-                                    #{tag}
-                                </span>
-                            ))}
-                        </div>
-                        <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
-                            {post.title}
-                        </h1>
-                        <div className="flex items-center space-x-4 text-gray-500">
-                            <span>{post.author}</span>
-                            <span>•</span>
-                            <time dateTime={post.date}>
-                                {new Date(post.date).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })}
-                            </time>
-                        </div>
-                    </header>
+        <div className="relative min-w-[300px]">
+            <div className="px-4">
+                {/* Main content */}
+                <div className="lg:pr-64">
+                    <article>
+                        <header className="mb-16">
+                            <div className="mb-6 flex flex-wrap">
+                                {post.tags && post.tags.map(tag => (
+                                    <span
+                                        key={tag}
+                                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 mr-2 mb-2"
+                                    >
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                            <h1 className="text-4xl font-extrabold text-gray-900 mb-4 break-words">
+                                {post.title}
+                            </h1>
+                            <div className="flex flex-wrap items-center gap-2 text-gray-500">
+                                <span>{post.author}</span>
+                                <span>•</span>
+                                <time dateTime={post.created_at || post.date}>
+                                    {new Date(post.created_at || post.date).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                </time>
+                            </div>
+                        </header>
 
-                    {post.featuredImage && (
-                        <div className="aspect-[2/1] overflow-hidden rounded-lg mb-16">
-                            <img
-                                src={post.featuredImage}
-                                alt={post.title}
-                                className="w-full h-full object-cover"
+                        {post.featuredImage && (
+                            <div className="mb-16 mx-auto max-w-[900px]">
+                                <div className="aspect-[2/1] overflow-hidden rounded-lg">
+                                    <img
+                                        src={post.featuredImage}
+                                        alt={post.title}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="prose prose-lg max-w-full dark:prose-invert">
+                            <MDEditor.Markdown 
+                                source={post.content}
+                                style={{ backgroundColor: 'transparent' }}
+                                className="markdown-body"
                             />
                         </div>
-                    )}
+                    </article>
+                </div>
 
-                    <div className="prose prose-lg max-w-none">
-                        <ReactMarkdown
-                            components={{
-                                code({node, inline, className, children, ...props}) {
-                                    const match = /language-(\w+)/.exec(className || '');
-                                    return !inline && match ? (
-                                        <SyntaxHighlighter
-                                            style={atomDark}
-                                            language={match[1]}
-                                            PreTag="div"
-                                            {...props}
-                                        >
-                                            {String(children).replace(/\n$/, '')}
-                                        </SyntaxHighlighter>
-                                    ) : (
-                                        <code className={className} {...props}>
-                                            {children}
-                                        </code>
-                                    );
-                                }
-                            }}
-                        >
-                            {post.content}
-                        </ReactMarkdown>
-                    </div>
-
-                    <div className="mt-16 pt-8 border-t border-gray-200">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                                <span className="text-gray-500">Share this post:</span>
-                                <a
-                                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(window.location.href)}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-gray-400 hover:text-gray-500"
-                                >
-                                    Twitter
-                                </a>
-                                <a
-                                    href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(post.title)}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-gray-400 hover:text-gray-500"
-                                >
-                                    LinkedIn
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-
-                <div className="mt-16 pt-8 border-t border-gray-200">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-8">Related Posts</h2>
-                    <div className="grid md:grid-cols-3 gap-8">
-                        <RelatedPosts currentPostId={post.id} currentPostTags={post.tags} />
+                {/* Table of Contents - Fixed on desktop, bottom on mobile */}
+                <div className="lg:w-64 lg:fixed lg:top-24 lg:right-4 lg:bottom-0 lg:overflow-y-auto">
+                    <div className="mt-8 lg:mt-0">
+                        <TableOfContents currentPostId={post.isStatic ? post.slug : post.id} />
                     </div>
                 </div>
             </div>
-
-            <TableOfContents currentPostId={post.id} />
-        </>
+        </div>
     );
 };
 

@@ -1,63 +1,74 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { posts } from '../data/posts';
+import { supabase } from '../services/supabase';
 
-const RelatedPosts = ({ currentPostId, currentPostTags }) => {
-    // Find posts that share tags with the current post
-    const relatedPosts = posts
-        .filter(post => post.id !== currentPostId) // Exclude current post
-        .map(post => ({
-            ...post,
-            // Calculate how many tags match
-            relevanceScore: post.tags.filter(tag => 
-                currentPostTags.includes(tag)
-            ).length
-        }))
-        .filter(post => post.relevanceScore > 0) // Only include posts with matching tags
-        .sort((a, b) => b.relevanceScore - a.relevanceScore) // Sort by relevance
-        .slice(0, 3); // Get top 3 related posts
+const RelatedPosts = ({ currentPostId }) => {
+    const [relatedPosts, setRelatedPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // If we don't have enough related posts by tags, add recent posts
-    const recentPosts = posts
-        .filter(post => 
-            post.id !== currentPostId && 
-            !relatedPosts.find(p => p.id === post.id)
-        )
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 3 - relatedPosts.length);
+    useEffect(() => {
+        const fetchRelatedPosts = async () => {
+            try {
+                // Fetch recent posts excluding the current post
+                const { data, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .neq('id', currentPostId)
+                    .order('created_at', { ascending: false })
+                    .limit(3);
 
-    const sidebarPosts = [...relatedPosts, ...recentPosts];
+                if (error) throw error;
+                setRelatedPosts(data);
+            } catch (error) {
+                console.error('Error fetching related posts:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRelatedPosts();
+    }, [currentPostId]);
+
+    if (loading) {
+        return <div className="animate-pulse space-y-4">
+            {[1, 2, 3].map(i => (
+                <div key={i} className="space-y-2">
+                    <div className="h-32 bg-gray-200 rounded-lg"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+            ))}
+        </div>;
+    }
 
     return (
         <div className="space-y-8">
             <h3 className="text-lg font-semibold text-gray-900">Related Posts</h3>
             <div className="space-y-6">
-                {sidebarPosts.map(post => (
+                {relatedPosts.map(post => (
                     <Link
                         key={post.id}
-                        to={`/post/${post.slug}`}
+                        to={`/post/${post.id}`}
                         className="group block"
                     >
                         <article className="space-y-3">
-                            {post.featuredImage && (
+                            {post.image_url && (
                                 <div className="aspect-[2/1] overflow-hidden rounded-lg">
                                     <img
-                                        src={post.featuredImage}
+                                        src={post.image_url}
                                         alt={post.title}
                                         className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
                                     />
                                 </div>
                             )}
-                            <h4 className="text-base font-semibold text-gray-900 group-hover:text-accent-600 transition duration-150 line-clamp-2">
+                            <h4 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition duration-150 line-clamp-2">
                                 {post.title}
                             </h4>
-                            <div className="flex items-center text-sm text-gray-500">
-                                <time dateTime={post.date}>
-                                    {new Date(post.date).toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric',
-                                        year: 'numeric'
-                                    })}
-                                </time>
+                            <div className="text-sm text-gray-500">
+                                {new Date(post.created_at).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
                             </div>
                         </article>
                     </Link>
