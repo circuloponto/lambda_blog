@@ -128,8 +128,8 @@ const PostDetail = () => {
     }
 
     return (
-        <div className="relative w-full">
-            <div className="px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 py-8">
+            <div className="relative">
                 {/* Main content */}
                 <div className="lg:pr-64">
                     <article className="max-w-2xl mx-auto">
