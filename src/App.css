@@ -1,8 +1,38 @@
+/* Reset and base styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure proper mobile viewport */
 #root {
+  width: 100%;
+  overflow-x: hidden;
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+/* Ensure images don't overflow */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure code blocks don't overflow */
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Ensure tables don't overflow */
+table {
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
 }
 
 .logo {
