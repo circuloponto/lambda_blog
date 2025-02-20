@@ -128,11 +128,11 @@ const PostDetail = () => {
     }
 
     return (
-        <div className="relative min-w-[300px] max-w-full overflow-x-hidden">
-            <div className="px-4">
+        <div className="relative">
+            <div className="px-4 sm:px-6 lg:px-8">
                 {/* Main content */}
                 <div className="lg:pr-64">
-                    <article className="mx-auto max-w-[900px] overflow-hidden">
+                    <article className="max-w-2xl mx-auto">
                         <header className="mb-16">
                             <div className="mb-6 flex flex-wrap">
                                 {post.tags && post.tags.map(tag => (
@@ -172,14 +172,10 @@ const PostDetail = () => {
                             </div>
                         )}
 
-                        <div className="prose prose-lg max-w-full dark:prose-invert overflow-hidden">
+                        <div className="prose prose-lg mx-auto dark:prose-invert">
                             <MDEditor.Markdown 
                                 source={post.content}
-                                style={{ 
-                                    backgroundColor: 'transparent',
-                                    maxWidth: '100%',
-                                    overflow: 'hidden'
-                                }}
+                                style={{ backgroundColor: 'transparent' }}
                                 className="markdown-body"
                             />
                         </div>
